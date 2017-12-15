@@ -1,0 +1,135 @@
+﻿
+@model MedicalTranscriptionEntry.Models.Patient
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+       
+        $("#btnSearch").click(function () {   
+            var patientName = $("#patientTxtbox").val();
+            var patientId = $("#patientIdTxtbox").val();
+            $.ajax({
+                type: "POST",
+                url: "Patient/SearchPatient",
+                data: JSON.stringify({
+                    'patientName': patientName,
+                    'patientId': patientId
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var jsdata = JSON.parse(JSON.stringify(data.Message));
+                    if (jsdata == false)
+                    {
+                        alert("User Not Found!!");
+                    }
+                    $('#patientTxtbox').val(jsdata.Name).change();
+                    $('#patientIdTxtbox').val(jsdata.ID).change();
+                    $('#ptGender').val(jsdata.Gender).change();
+                    $('#ptAge').val(jsdata.Age).change();
+                    $('#ptDepartment').val(jsdata.Department).change();
+                    $('#ptSubDep').val(jsdata.SubDepartment).change();
+
+
+                    //$('#patientTxtbox').attr("value", jsdata.Name).change();
+                    //$('#patientIdTxtbox').attr("value", jsdata.ID).change();
+                    //$('#ptGender').attr("value", jsdata.Gender).change();
+                    //$('#ptAge').attr("value", jsdata.Age).change();
+                    //$('#ptDepartment').attr("value", jsdata.Department).change();
+                    //$('#ptSubDep').attr("value", jsdata.SubDepartment).change();
+                  
+                    
+                },
+                error: function (jqXHR, exception) {
+
+                }
+            });
+
+        });
+        $("#btnDelete").click(function () {
+            
+            var patientId = $("#patientIdTxtbox").val();
+            $.ajax({
+                type: "POST",
+                url: "Patient/DeleteData",
+                data: JSON.stringify({
+                    'patientId': patientId
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var jsdata = JSON.parse(JSON.stringify(data.Message));
+                    if (jsdata == true) {
+                        alert("Deleted Successfully!!")
+                    }
+
+
+                },
+                error: function (jqXHR, exception) {
+
+                }
+            });
+
+        });
+    });
+</script>
+<h2>Patient Search View</h2>
+
+<div class="row">
+    <div class="col-md-6" >
+        @using (@Html.BeginForm("PatientView", "Patient",FormMethod.Post))
+        {
+            <div class="form-group">
+                <label for="PatientName" class="control-label">Name</label>
+                @Html.TextBoxFor(m => m.Name, null, new { @class = "form-control", @id = "patientTxtbox" })
+
+            </div>
+            <div class="form-group">
+                <label for="Patient ID" class="control-label">Patient ID</label>
+                @Html.TextBoxFor(m => m.ID, null, new { @class = "form-control", @id = "patientIdTxtbox" })
+
+            </div>
+            <div class="form-group">
+                <input type="button" id="btnSearch" value="Search" class="btn btn-default" style="background-color:#0D94D2;color:white" />
+            </div>
+
+            <div class="form-group">
+                <label for="Gender" class="control-label">Gender</label>
+                @*@Html.TextBoxFor("Gender",(string)ViewBag.Gender)*@
+
+                @Html.TextBoxFor(m => m.Gender, null, new { @class = "form-control", @id = "ptGender", @readonly = "readonly" })
+
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Age" class="control-label">Age</label>
+                @Html.TextBoxFor(m => m.Age, null, new { @class = "form-control", @id = "ptAge", @readonly = "readonly" })
+
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Department" class="control-label">Department</label>
+                @Html.TextBoxFor(m => m.Department, null, new { @class = "form-control", @id = "ptDepartment", @readonly = "readonly" })
+
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Sub-Department" class="control-label">Sub-Department</label>
+                @Html.TextBoxFor(m => m.SubDepartment, null, new { @class = "form-control", @id = "ptSubDep", @readonly = "readonly" })
+
+
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Update" class="btn btn-default" style="background-color:#0D94D2;color:white"/>
+                <input type="button" id="btnDelete" value="Delete" class="btn btn-default" style="background-color:#0D94D2;color:white" />
+            </div>
+            
+
+        }
+    </div>
+</div>

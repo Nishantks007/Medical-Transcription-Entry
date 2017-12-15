@@ -1,0 +1,246 @@
+﻿@using PagedList.Mvc;
+@using PagedList;
+
+@model MedicalTranscriptionEntry.Models.Patient
+
+@{
+    ViewData["Title"] = "PatientInfo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var isSuccess = @Html.Raw(Json.Encode(@ViewBag.isSuccess));
+        var patName = @Html.Raw(Json.Encode(@ViewBag.Name));
+        if (isSuccess)
+        {
+            alert(patName + "'s Data Saved Successfully");
+        }
+        var pageNumber = 1;
+        $("#btnNextPage").click(function () {
+            pageNumber = pageNumber + 1;
+            $.ajax({
+                type: "POST",
+                url: "GetAllData",
+                data: JSON.stringify({
+                    'pageNumber': pageNumber,
+                    'recordCount': 10,
+                    'ageSort': false,
+                    'nameSort': true,
+                    'depSort': false,
+                    'genderSort': false,
+                    'subDepSort': false,
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var jsdata = JSON.parse(JSON.stringify(data.Message));
+                    var trHTML = '<tr><th><button type="button" style="margin-left:10px;" id="btnNameSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Name</button></th><th><button type="button" style="margin-left:10px;" id="btnGenderSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Gender</button></th><th><button type="button" id="btnAgeSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Age</button></th><th><button type="button" id="btnDepartmentSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Department</button></th><th><button type="button" id="btnSubDepSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Sub-Department</button></th></tr>';
+                    $('#tblPatient tbody').remove();
+                    $.each(jsdata, function (i, item) {
+
+                        trHTML += '<tr><td>' + item.Name + '</td><td>' + item.Gender + '</td><td>' + item.Age + '</td><td>' + item.Department + '</td><td>' + item.SubDepartment + '</td></tr>';
+                    });
+
+                    $('#tblPatient').append(trHTML);
+
+                },
+                error: function (jqXHR, exception) {
+
+                }
+            });
+
+        });
+
+        $("#btnPrevPage").click(function () {
+            if (pageNumber > 1) {
+                pageNumber = pageNumber - 1;
+                $.ajax({
+                    type: "POST",
+                    url: "GetAllData",
+                    data: JSON.stringify({
+                        'pageNumber': pageNumber,
+                        'recordCount': 10,
+                        'ageSort': false,
+                        'nameSort': true,
+                        'depSort': false,
+                        'genderSort': false,
+                        'subDepSort': false,
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        var jsdata = JSON.parse(JSON.stringify(data.Message));
+                        var trHTML = '<tr><th><button type="button" style="margin-left:10px;" id="btnNameSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Name</button></th><th><button type="button" style="margin-left:10px;" id="btnGenderSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Gender</button></th><th><button type="button" id="btnAgeSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Age</button></th><th><button type="button" id="btnDepartmentSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Department</button></th><th><button type="button" id="btnSubDepSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Sub-Department</button></th></tr>';
+                        $('#tblPatient tbody').remove();
+                        $.each(jsdata, function (i, item) {
+
+                            trHTML += '<tr><td>' + item.Name + '</td><td>' + item.Gender + '</td><td>' + item.Age + '</td><td>' + item.Department + '</td><td>' + item.SubDepartment + '</td></tr>';
+                        });
+
+                        $('#tblPatient').append(trHTML);
+
+                    },
+                    error: function (jqXHR, exception) {
+
+                    }
+
+                });
+            }
+        });
+
+        
+
+        function sortFunction(name,age,dep,gender,subdep) {
+            $.ajax({
+                type: "POST",
+                url: "GetAllData",
+                data: JSON.stringify({
+                    'pageNumber': pageNumber,
+                    'recordCount': 10,
+                    'ageSort': age,
+                    'nameSort': name,
+                    'depSort': dep,
+                    'genderSort': gender,
+                    'subDepSort': subdep,
+                }),
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    var jsdata = JSON.parse(JSON.stringify(data.Message));
+                    var trHTML = '<tr><th><button type="button" style="margin-left:10px;" id="btnNameSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Name</button></th><th><button type="button" style="margin-left:10px;" id="btnGenderSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Gender</button></th><th><button type="button" id="btnAgeSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Age</button></th><th><button type="button" id="btnDepartmentSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Department</button></th><th><button type="button" id="btnSubDepSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Sub-Department</button></th></tr>';
+                    $('#tblPatient tbody').remove();
+                    $.each(jsdata, function (i, item) {
+
+                        trHTML += '<tr><td>' + item.Name + '</td><td>' + item.Gender + '</td><td>' + item.Age + '</td><td>' + item.Department + '</td><td>' + item.SubDepartment + '</td></tr>';
+                    });
+
+                    $('#tblPatient').append(trHTML);
+
+                },
+                error: function (jqXHR, exception) {
+
+                }
+
+            });
+        }
+
+        $("#btnNameSort").click(function () {
+            var name = true;
+            var age = false;
+            var dep = false;
+            var gender = false;
+            var subdep = false;
+            sortFunction(name, age, dep, gender, subdep);
+        });
+
+        $("#btnAgeSort").click(function () {
+            var name = false;
+            var age = true;
+            var dep = false;
+            var gender = false;
+            var subdep = false;
+            sortFunction(name, age, dep, gender, subdep);
+        });
+
+        $("#btnGenderSort").click(function () {
+            var name = false;
+            var age = false;
+            var dep = false;
+            var gender = true;
+            var subdep = false;
+            sortFunction(name, age, dep, gender, subdep);
+        });
+
+        $("#btnDepartmentSort").click(function () {
+            var name = false;
+            var age = false;
+            var dep = true;
+            var gender = false;
+            var subdep = false;
+            sortFunction(name, age, dep, gender, subdep);
+        });
+
+        $("#btnSubDepSort").click(function () {
+            var name = false;
+            var age = false;
+            var dep = false;
+            var gender = false;
+            var subdep = true;
+            sortFunction(name, age, dep, gender, subdep);
+        });
+
+
+    });
+</script>
+
+<h2>Patient Information</h2>
+@*<h4>Patient</h4>*@
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        @using (Html.BeginForm())
+        {
+            <div class="form-group">
+                <label for="PatientName" class="control-label">Name</label>
+                @Html.TextBoxFor(m => m.Name, null, new { @class = "form-control" })
+
+            </div>
+            <div class="form-group">
+                <label for="Gender" class="control-label">Gender</label>
+                @Html.DropDownListFor(m => m.Gender, new SelectList(ViewBag.Gender), new { @class = "form-control" })
+
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Age" class="control-label">Age</label>
+                @Html.TextBoxFor(m => m.Age, null, new { @class = "form-control" })
+
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Department" class="control-label">Department</label>
+                @Html.DropDownListFor(m => m.Department, new SelectList(ViewBag.Department), new { @class = "form-control" })
+
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="Sub-Department" class="control-label">Sub-Department</label>
+                @Html.DropDownListFor(m => m.SubDepartment, new SelectList(ViewBag.SubDepartment), new { @class = "form-control" })
+
+
+                <span asp-validation-for="Department" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-default" style="background-color:#0D94D2;color:white" />
+            </div>
+        }
+
+    </div>
+    <div class="col-md-6">
+        <table id="tblPatient" class="table" style="width:100%">
+            <tr><th><button type="button" style="margin-left:10px;" id="btnNameSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Name</button></th><th><button type="button" style="margin-left:10px;" id="btnGenderSort" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Gender</button></th><th><button type="button" id="btnAgeSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Age</button></th><th><button type="button" id="btnDepartmentSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Department</button></th><th><button type="button" id="btnSubDepSort" style="margin-left:10px;" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-sort"></span>Sub-Department</button></th></tr>
+            @foreach (var data in @ViewBag.AllRecords)
+            {
+                <tr>
+                    <td>@data.Name</td>
+                    <td>@data.Gender</td>
+                    <td>@data.Age</td>
+                    <td>@data.Department</td>
+                    <td>@data.SubDepartment</td>
+                </tr>
+            }
+
+        </table>
+        <div class="col-md-12 row">
+            <div class="col-md-3">
+                <button type="button" id="btnPrevPage" class="btn btn-primary btn-xs"><<</button>
+            </div>
+            <div class="col-md-3">
+                <span class="label label-primary"></span>
+            </div>
+            <div class="col-md-3">
+                <button type="button" id="btnNextPage" class="btn btn-primary btn-xs">>></button>
+            </div>
+
+        </div>
+    </div>
+</div>
