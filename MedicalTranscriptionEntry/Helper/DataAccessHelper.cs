@@ -20,6 +20,13 @@ namespace MedicalTranscriptionEntry.Helper
             DbOperations dbData = new DbOperations();
             return dbData.GetAndBindData(pageNumber, recordCount, nameSort, depSort, ageSort, subDepSort, genderSort);
         }
+
+        public List<Patient> GetAllData()
+        {
+            DbOperations dbData = new DbOperations();
+            return dbData.GetAllData();
+        }
+
         public Patient SearchPatient(string patientName, string patientId)
         {
             DbOperations dbData = new DbOperations();

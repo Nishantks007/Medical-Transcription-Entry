@@ -165,6 +165,7 @@ namespace MedicalTranscriptionEntry.Data_Access
             {
 
                 Patient P = new Patient();
+                P.ID = Convert.ToInt32(drData.GetInt32(0));
                 P.Name = Convert.ToString(drData.GetString(1));
                 P.Gender = Convert.ToString(drData.GetString(2));
                 P.Age = Convert.ToInt32(drData.GetInt32(3));
@@ -178,6 +179,8 @@ namespace MedicalTranscriptionEntry.Data_Access
             GridView1.DataBind();*/
             return PatientList;
         }
+
+       
 
 
         public List<Patient> GetAllData()
@@ -202,6 +205,7 @@ namespace MedicalTranscriptionEntry.Data_Access
                     {
 
                         Patient P = new Patient();
+                        P.ID = Convert.ToInt32(rd.GetInt32(0));
                         P.Name = Convert.ToString(rd.GetString(1));
                         P.Gender = Convert.ToString(rd.GetString(2));
                         P.Age = Convert.ToInt32(rd.GetInt32(3));

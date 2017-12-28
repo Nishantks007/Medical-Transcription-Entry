@@ -29,7 +29,7 @@
             var dataPt = $("#frmPtData").serializeObject();
             $.ajax({
                 type: "POST",
-                url: "Patient/UpdateData",
+                url: "UpdateData",
                 data: JSON.stringify({
                     'ptInfo': dataPt
                 }),
