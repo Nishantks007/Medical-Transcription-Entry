@@ -1,6 +1,317 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
+@model MedicalTranscriptionEntry.Models.Patient
 
-<div style="width:25%">
+<script type="text/javascript">
+    $.noConflict();
+    $(document).ready(function () {
+
+        LoadData();
+
+
+      
+    });
+
+    function LoadData() {
+        var deleteId;
+        var pageNumber = 1;
+        pageNumber = pageNumber + 1;
+        
+
+        $.ajax({
+            type: "POST",
+            url: "Home/GetAllData",
+            data: JSON.stringify({
+                'pageNumber': pageNumber,
+                'recordCount': 10,
+                'ageSort': false,
+                'nameSort': true,
+                'depSort': false,
+                'genderSort': false,
+                'subDepSort': false,
+            }),
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                var jsdata = JSON.parse(JSON.stringify(data.Message));
+
+                $('#tblPatient').dataTable({
+                    "destroy": true,
+                    "fnCreatedRow": function (nRow, aData, iDataIndex) {
+                        $('td:eq(6)', nRow).append("<button type='button' class='btn btn-primary btn-sm btnEdit'>Edit</button><button type='button' data-toggle='modal' data-target='#confirm-delete'  style='margin-left:20px;' class='btn btn-danger btn-sm btnDelete'>Delete</button>");
+                       
+                    },
+                    "aaData": jsdata,
+                    "aoColumns": [
+                        { "mDataProp": "ID" },
+                        { "mDataProp": "Name" },
+                        { "mDataProp": "Gender" },
+                        { "mDataProp": "Age" },
+                        { "mDataProp": "Department" },
+                        { "mDataProp": "SubDepartment" },
+                        { "mDataProp": "ButtonContent" }
+                    ],
+
+                });
+
+                $("#btnConfirmDelete").click(function () {
+
+                    var patientId = deleteId;
+                    $.ajax({
+                        type: "POST",
+                        url: "Home/DeleteData",
+                        data: JSON.stringify({
+                            'patientId': patientId
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            var jsdata = JSON.parse(JSON.stringify(data.Message));
+                            if (jsdata == true) {
+                                $('#confirm-delete').modal('hide');
+
+                                SuccessMessage();
+                            }
+
+
+                        },
+                        error: function (jqXHR, exception) {
+
+                        }
+                    });
+
+                });
+
+
+                $("#tblPatient").on("click", ".btnEdit", function () {
+                    var $td = $(this).closest('tr').children('td');
+                    var sr = $td.eq(0).text();
+
+                    var patientId = sr;
+                    $.ajax({
+                        type: "POST",
+                        url: "Home/SearchPatient",
+                        data: JSON.stringify({
+                            'patientId': patientId
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        success: function (data) {
+                            var jsdata = JSON.parse(JSON.stringify(data.Message));
+                            if (jsdata == false) {
+                                $('#editModal').modal('hide');
+                            }
+                            $('#patientTxtbox').val(jsdata.Name).change();
+                            $('#patientIdTxtbox').val(jsdata.ID).change();
+                            $('#ptGender').val(jsdata.Gender).change();
+                            $('#ptAge').val(jsdata.Age).change();
+                            $('#ptDepartment').val(jsdata.Department).change();
+                            $('#ptSubDep').val(jsdata.SubDepartment).change();
+                            $('#editModal').modal('show');
+                        },
+                        error: function (jqXHR, exception) {
+
+                        }
+                    });
+                });
+
+                $("#tblPatient").on("click", ".btnDelete", function () {
+                    var $td = $(this).closest('tr').children('td');
+                    deleteId = $td.eq(0).text();
+                    var sr1 = $td.eq(1).text();
+                    $(".modal-body #textData").text('Do you realy want to delete ' + sr1 + "'s data");
+                });
+
+                 
+                var r = $('<button type="button" style="float:left;margin-right:20px;" data-toggle="modal" data-target="#myModal" class="btn btn-primary btn-sm">Add New Patient</button>');
+                $("#tblPatient_filter").append(r);
+
+                $('#myModal').on('hidden.bs.modal', function () {
+                    $(this).find('form').trigger('reset');
+                })
+            },
+            error: function (jqXHR, exception) {
+
+            }
+        });
+    }
+
+    function SuccessMessage() {
+        $('#editModal').modal('hide');
+        $('#confirm-delete').modal('hide');
+        $('#myModal').modal('hide');
+        $.notify("Success", "success");
+        LoadData();
+    }
+
+    function FailMessage() {
+        alert("Fail Post");
+    }
+
+
+</script>
+
+
+
+<div style="margin-top:100px;">
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Add New Patient</h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset>
+                        @using (Ajax.BeginForm("PatientInfo", "Home", new AjaxOptions
+                        { HttpMethod = "POST",
+                            OnSuccess = "SuccessMessage",
+                            OnFailure = "FailMessage"
+                        }, new { id = "FormName" }))
+                        {
+                        <div class="form-group">
+                            <label for="PatientName" class="control-label">Name</label>
+                            @Html.TextBoxFor(m => m.Name, null, new { @class = "form-control" })
+
+                        </div>
+                        <div class="form-group">
+                            <label for="Gender" class="control-label">Gender</label>
+                            @Html.DropDownListFor(m => m.Gender, new SelectList(ViewBag.Gender), new { @class = "form-control" })
+
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Age" class="control-label">Age</label>
+                            @Html.TextBoxFor(m => m.Age, null, new { @class = "form-control" })
+
+                            <span asp-validation-for="Age" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Department" class="control-label">Department</label>
+                            @Html.DropDownListFor(m => m.Department, new SelectList(ViewBag.Department), new { @class = "form-control" })
+
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Sub-Department" class="control-label">Sub-Department</label>
+                            @Html.DropDownListFor(m => m.SubDepartment, new SelectList(ViewBag.SubDepartment), new { @class = "form-control" })
+
+
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-default" style="background-color:#0D94D2;color:white" />
+                        </div>
+                        }
+                    </fieldset>
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit Patient Data</h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset>
+                        @using (Ajax.BeginForm("UpdateData", "Home", new AjaxOptions
+                        {
+                            HttpMethod = "POST",
+                            OnSuccess = "SuccessMessage",
+                            OnFailure = "FailMessage"
+                        }))
+                        {
+                        <div class="form-group">
+                            <label for="PatientName" class="control-label">Name</label>
+                            @Html.TextBoxFor(m => m.Name, null, new { @class = "form-control", @id = "patientTxtbox", @readonly = "readonly" })
+
+                        </div>
+                        <div class="form-group">
+                            <label for="PatientName" class="control-label">ID</label>
+                            @Html.TextBoxFor(m => m.ID, null, new { @class = "form-control", @id = "patientIdTxtbox", @readonly = "readonly" })
+
+                        </div>
+                        <div class="form-group">
+                            <label for="Gender" class="control-label">Gender</label>
+                            @Html.DropDownListFor(m => m.Gender, new SelectList(ViewBag.Gender), new { @class = "form-control", @id = "ptGender" })
+
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Age" class="control-label">Age</label>
+                            @Html.TextBoxFor(m => m.Age, null, new { @class = "form-control", @id = "ptAge" })
+
+                            <span asp-validation-for="Age" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Department" class="control-label">Department</label>
+                            @Html.DropDownListFor(m => m.Department, new SelectList(ViewBag.Department), new { @class = "form-control", @id = "ptDepartment" })
+
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Sub-Department" class="control-label">Sub-Department</label>
+                            @Html.DropDownListFor(m => m.SubDepartment, new SelectList(ViewBag.SubDepartment), new { @class = "form-control", @id = "ptSubDep" })
+
+
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="submit" value="Save" class="btn btn-default" style="background-color:#0D94D2;color:white" />
+                        </div>
+                        }
+                    </fieldset>
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Delete Patient Data
+                </div>
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <span name="textData" id="textData" value=""></span>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-danger btn-ok" id="btnConfirmDelete">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="tblPatient" class="" style="width:100%;">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Department</th>
+                <th>SubDepartment</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    </table>
+
+
 </div>

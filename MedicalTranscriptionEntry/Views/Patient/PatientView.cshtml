@@ -7,15 +7,16 @@
 }
 
 <script type="text/javascript">
+    
     $(document).ready(function () {
-        
+        $.noConflict();  
        
         $("#btnSearch").click(function () {   
             var patientName = $("#patientTxtbox").val();
             var patientId = $("#patientIdTxtbox").val();
             $.ajax({
                 type: "POST",
-                url: "Patient/SearchPatient",
+                url: "SearchPatient",
                 data: JSON.stringify({
                     'patientName': patientName,
                     'patientId': patientId
@@ -55,7 +56,7 @@
             var patientId = $("#patientIdTxtbox").val();
             $.ajax({
                 type: "POST",
-                url: "Patient/DeleteData",
+                url: "DeleteData",
                 data: JSON.stringify({
                     'patientId': patientId
                 }),

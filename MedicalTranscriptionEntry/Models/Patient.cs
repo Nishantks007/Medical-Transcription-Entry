@@ -14,6 +14,7 @@ namespace MedicalTranscriptionEntry.Models
         public string Gender { get; set; }
         public string Department { get; set; }
         public string SubDepartment { get; set; }
+        public string ButtonContent { get; set; }
 
     }
 }
